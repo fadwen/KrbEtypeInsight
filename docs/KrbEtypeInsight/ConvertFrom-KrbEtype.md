@@ -304,5 +304,6 @@ TROUBLESHOOTING:
 
 - [MS-KILE 2.2.7 - Supported Encryption Types Bit Flags](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-kile/6cfc7b50-11ed-4b4d-846d-6f08f0812919)
 - [RFC 3961 - Encryption and Checksum Specifications for Kerberos 5](https://www.rfc-editor.org/rfc/rfc3961)
-- [Get-KrbEvent](https://github.com/fadwen/KrbEtypeInsight/blob/main/docs/KrbEtypeInsight/Get-KrbEvent.md)
-- [Get-KrbPrincipalEtype](https://github.com/fadwen/KrbEtypeInsight/blob/main/docs/KrbEtypeInsight/Get-KrbPrincipalEtype.md)
+- [Get-KrbEvent]()
+- [Get-KrbPrincipalEtype]()
+- [about_KrbEtypeInsight]()

@@ -385,5 +385,6 @@ TROUBLESHOOTING:
 
 - [MS-KILE 2.2.7 - Supported Encryption Types Bit Flags](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-kile/6cfc7b50-11ed-4b4d-846d-6f08f0812919)
 - [Group Managed Service Accounts overview](https://learn.microsoft.com/en-us/windows-server/security/group-managed-service-accounts/group-managed-service-accounts-overview)
-- [Get-KrbDomainEtypeContext](https://github.com/fadwen/KrbEtypeInsight/blob/main/docs/KrbEtypeInsight/Get-KrbDomainEtypeContext.md)
-- [Get-KrbEtypeRisk](https://github.com/fadwen/KrbEtypeInsight/blob/main/docs/KrbEtypeInsight/Get-KrbEtypeRisk.md)
+- [Get-KrbDomainEtypeContext]()
+- [Get-KrbEtypeRisk]()
+- [about_KrbEtypeInsight]()

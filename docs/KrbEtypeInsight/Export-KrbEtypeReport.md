@@ -328,5 +328,6 @@ TROUBLESHOOTING:
 ## RELATED LINKS
 
 - [KB5021131 - Managing the Kerberos protocol changes for CVE-2022-37966](https://support.microsoft.com/help/5021131)
-- [Get-KrbEtypeRisk](https://github.com/fadwen/KrbEtypeInsight/blob/main/docs/KrbEtypeInsight/Get-KrbEtypeRisk.md)
-- [Get-KrbEvent](https://github.com/fadwen/KrbEtypeInsight/blob/main/docs/KrbEtypeInsight/Get-KrbEvent.md)
+- [Get-KrbEtypeRisk]()
+- [Get-KrbEvent]()
+- [about_KrbEtypeInsight]()

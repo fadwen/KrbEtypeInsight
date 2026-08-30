@@ -277,5 +277,6 @@ TROUBLESHOOTING:
 
 - [KB5021131 - Managing the Kerberos protocol changes for CVE-2022-37966](https://support.microsoft.com/help/5021131)
 - [MS-KILE 2.2.7 - Supported Encryption Types Bit Flags](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-kile/6cfc7b50-11ed-4b4d-846d-6f08f0812919)
-- [Get-KrbPrincipalEtype](https://github.com/fadwen/KrbEtypeInsight/blob/main/docs/KrbEtypeInsight/Get-KrbPrincipalEtype.md)
-- [Get-KrbEtypeRisk](https://github.com/fadwen/KrbEtypeInsight/blob/main/docs/KrbEtypeInsight/Get-KrbEtypeRisk.md)
+- [Get-KrbPrincipalEtype]()
+- [Get-KrbEtypeRisk]()
+- [about_KrbEtypeInsight]()

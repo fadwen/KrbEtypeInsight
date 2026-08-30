@@ -108,10 +108,13 @@ if ($unfilled) {
 # --- 3. Relative links ------------------------------------------------------------
 # A .LINK value must be a bare topic name or an absolute http/https URL. A relative path
 # passes Test-MarkdownCommandHelp and then breaks Get-Help at read time.
-$relative = Select-String -Path $markdown -Pattern '^\s*-?\s*\[.+\]\((?!https?://)'
+#
+# The |\) in the lookahead permits a bare topic name, which PlatyPS writes as [Get-Thing]().
+# Without it the check rejects every cross-reference between this module's own commands.
+$relative = Select-String -Path $markdown -Pattern '^\s*-?\s*\[.+\]\((?!https?://|\))'
 if ($relative) {
     $first = $relative | Select-Object -First 1
-    throw "Relative link in RELATED LINKS at $($first.Filename):$($first.LineNumber) - use an absolute URL."
+    throw "Relative link in RELATED LINKS at $($first.Filename):$($first.LineNumber) - use an absolute URL or a bare topic name."
 }
 
 # --- 4. Drift against the exported command list -----------------------------------

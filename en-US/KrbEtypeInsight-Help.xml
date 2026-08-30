@@ -314,11 +314,15 @@ Get-KrbEvent -MaxEvents 500 | ForEach-Object { ConvertFrom-KrbEtype -TicketEtype
       </maml:navigationLink>
       <maml:navigationLink>
         <maml:linkText>Get-KrbEvent</maml:linkText>
-        <maml:uri>https://github.com/fadwen/KrbEtypeInsight/blob/main/docs/KrbEtypeInsight/Get-KrbEvent.md</maml:uri>
+        <maml:uri />
       </maml:navigationLink>
       <maml:navigationLink>
         <maml:linkText>Get-KrbPrincipalEtype</maml:linkText>
-        <maml:uri>https://github.com/fadwen/KrbEtypeInsight/blob/main/docs/KrbEtypeInsight/Get-KrbPrincipalEtype.md</maml:uri>
+        <maml:uri />
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>about_KrbEtypeInsight</maml:linkText>
+        <maml:uri />
       </maml:navigationLink>
     </command:relatedLinks>
   </command:command>
@@ -625,11 +629,15 @@ Get-KrbEvent | Get-KrbEtypeRisk | Export-KrbEtypeReport -Path .\krb-risk.json -F
       </maml:navigationLink>
       <maml:navigationLink>
         <maml:linkText>Get-KrbEtypeRisk</maml:linkText>
-        <maml:uri>https://github.com/fadwen/KrbEtypeInsight/blob/main/docs/KrbEtypeInsight/Get-KrbEtypeRisk.md</maml:uri>
+        <maml:uri />
       </maml:navigationLink>
       <maml:navigationLink>
         <maml:linkText>Get-KrbEvent</maml:linkText>
-        <maml:uri>https://github.com/fadwen/KrbEtypeInsight/blob/main/docs/KrbEtypeInsight/Get-KrbEvent.md</maml:uri>
+        <maml:uri />
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>about_KrbEtypeInsight</maml:linkText>
+        <maml:uri />
       </maml:navigationLink>
     </command:relatedLinks>
   </command:command>
@@ -903,11 +911,15 @@ PS&gt; Get-KrbPrincipalEtype -All -DomainDefaultEncryptionTypes $context.DomainD
       </maml:navigationLink>
       <maml:navigationLink>
         <maml:linkText>Get-KrbPrincipalEtype</maml:linkText>
-        <maml:uri>https://github.com/fadwen/KrbEtypeInsight/blob/main/docs/KrbEtypeInsight/Get-KrbPrincipalEtype.md</maml:uri>
+        <maml:uri />
       </maml:navigationLink>
       <maml:navigationLink>
         <maml:linkText>Get-KrbEtypeRisk</maml:linkText>
-        <maml:uri>https://github.com/fadwen/KrbEtypeInsight/blob/main/docs/KrbEtypeInsight/Get-KrbEtypeRisk.md</maml:uri>
+        <maml:uri />
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>about_KrbEtypeInsight</maml:linkText>
+        <maml:uri />
       </maml:navigationLink>
     </command:relatedLinks>
   </command:command>
@@ -1263,15 +1275,19 @@ Get-KrbEvent -Path .\dc01.evtx, .\dc02.evtx -MaxEvents 0 | Get-KrbEtypeRisk -Off
       </maml:navigationLink>
       <maml:navigationLink>
         <maml:linkText>Get-KrbEvent</maml:linkText>
-        <maml:uri>https://github.com/fadwen/KrbEtypeInsight/blob/main/docs/KrbEtypeInsight/Get-KrbEvent.md</maml:uri>
+        <maml:uri />
       </maml:navigationLink>
       <maml:navigationLink>
         <maml:linkText>Get-KrbDomainEtypeContext</maml:linkText>
-        <maml:uri>https://github.com/fadwen/KrbEtypeInsight/blob/main/docs/KrbEtypeInsight/Get-KrbDomainEtypeContext.md</maml:uri>
+        <maml:uri />
       </maml:navigationLink>
       <maml:navigationLink>
         <maml:linkText>Export-KrbEtypeReport</maml:linkText>
-        <maml:uri>https://github.com/fadwen/KrbEtypeInsight/blob/main/docs/KrbEtypeInsight/Export-KrbEtypeReport.md</maml:uri>
+        <maml:uri />
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>about_KrbEtypeInsight</maml:linkText>
+        <maml:uri />
       </maml:navigationLink>
     </command:relatedLinks>
   </command:command>
@@ -1720,7 +1736,11 @@ Get-KrbEvent -IncludeFailureOnly -StartTime (Get-Date).AddHours(-4) |
       </maml:navigationLink>
       <maml:navigationLink>
         <maml:linkText>Get-KrbEtypeRisk</maml:linkText>
-        <maml:uri>https://github.com/fadwen/KrbEtypeInsight/blob/main/docs/KrbEtypeInsight/Get-KrbEtypeRisk.md</maml:uri>
+        <maml:uri />
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>about_KrbEtypeInsight</maml:linkText>
+        <maml:uri />
       </maml:navigationLink>
     </command:relatedLinks>
   </command:command>
@@ -2122,11 +2142,15 @@ Get-KrbEvent -EventId 4769 -MaxEvents 20000 |
       </maml:navigationLink>
       <maml:navigationLink>
         <maml:linkText>Get-KrbDomainEtypeContext</maml:linkText>
-        <maml:uri>https://github.com/fadwen/KrbEtypeInsight/blob/main/docs/KrbEtypeInsight/Get-KrbDomainEtypeContext.md</maml:uri>
+        <maml:uri />
       </maml:navigationLink>
       <maml:navigationLink>
         <maml:linkText>Get-KrbEtypeRisk</maml:linkText>
-        <maml:uri>https://github.com/fadwen/KrbEtypeInsight/blob/main/docs/KrbEtypeInsight/Get-KrbEtypeRisk.md</maml:uri>
+        <maml:uri />
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>about_KrbEtypeInsight</maml:linkText>
+        <maml:uri />
       </maml:navigationLink>
     </command:relatedLinks>
   </command:command>

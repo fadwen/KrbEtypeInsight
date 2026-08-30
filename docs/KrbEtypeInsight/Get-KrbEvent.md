@@ -427,4 +427,5 @@ TROUBLESHOOTING:
 - [4769 - A Kerberos service ticket was requested](https://learn.microsoft.com/en-us/windows/security/threat-protection/auditing/event-4769)
 - [4771 - Kerberos pre-authentication failed](https://learn.microsoft.com/en-us/windows/security/threat-protection/auditing/event-4771)
 - [KB5021131 - Managing the Kerberos protocol changes for CVE-2022-37966](https://support.microsoft.com/help/5021131)
-- [Get-KrbEtypeRisk](https://github.com/fadwen/KrbEtypeInsight/blob/main/docs/KrbEtypeInsight/Get-KrbEtypeRisk.md)
+- [Get-KrbEtypeRisk]()
+- [about_KrbEtypeInsight]()

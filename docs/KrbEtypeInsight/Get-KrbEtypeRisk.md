@@ -370,6 +370,7 @@ TROUBLESHOOTING:
 
 - [KB5021131 - Managing the Kerberos protocol changes for CVE-2022-37966](https://support.microsoft.com/help/5021131)
 - [RFC 4120 - The Kerberos Network Authentication Service (V5)](https://www.rfc-editor.org/rfc/rfc4120)
-- [Get-KrbEvent](https://github.com/fadwen/KrbEtypeInsight/blob/main/docs/KrbEtypeInsight/Get-KrbEvent.md)
-- [Get-KrbDomainEtypeContext](https://github.com/fadwen/KrbEtypeInsight/blob/main/docs/KrbEtypeInsight/Get-KrbDomainEtypeContext.md)
-- [Export-KrbEtypeReport](https://github.com/fadwen/KrbEtypeInsight/blob/main/docs/KrbEtypeInsight/Export-KrbEtypeReport.md)
+- [Get-KrbEvent]()
+- [Get-KrbDomainEtypeContext]()
+- [Export-KrbEtypeReport]()
+- [about_KrbEtypeInsight]()

@@ -15,9 +15,9 @@ and emits a per-principal risk assessment naming the specific clients that will 
 '@
 
     # 7.4 is the floor the module actually needs - it uses no cmdlet or syntax introduced
-    # in 7.5 or 7.6. Declaring a higher target only narrows the Gallery audience and blocks
-    # a stock CI runner, which still ships 7.4. Raise this to the next LTS when 7.4 loses
-    # support on 10-Nov-2026.
+    # in 7.5 or 7.6, so a higher target would only narrow the Gallery audience without
+    # buying any capability. Raise this to the next LTS when 7.4 loses support on
+    # 10-Nov-2026.
     PowerShellVersion = '7.4'
     CompatiblePSEditions = @('Core')
 

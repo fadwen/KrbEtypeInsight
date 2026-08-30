@@ -1,4 +1,4 @@
-#Requires -Version 7.6
+#Requires -Version 7.4
 
 <#
     KrbEtypeInsight - Kerberos encryption type breakage prediction for Active Directory.

@@ -1,4 +1,4 @@
-#Requires -Version 7.6
+#Requires -Version 7.4
 #Requires -Modules @{ ModuleName = 'Microsoft.PowerShell.PlatyPS'; ModuleVersion = '1.0.3' }
 
 <#

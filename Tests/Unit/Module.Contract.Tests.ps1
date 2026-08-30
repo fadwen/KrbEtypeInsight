@@ -61,9 +61,9 @@ Describe 'KrbEtypeInsight module contract' -Tag 'Unit', 'Contract' {
             Test-ModuleManifest -Path $script:ManifestPath | Should-NotBeNull
         }
 
-        It 'targets PowerShell 7.6' {
+        It 'targets PowerShell 7.4' {
             $manifest = Import-PowerShellDataFile -Path $script:ManifestPath
-            $manifest.PowerShellVersion | Should-Be '7.6'
+            $manifest.PowerShellVersion | Should-Be '7.4'
         }
 
         It 'does not declare ActiveDirectory as a required module' {

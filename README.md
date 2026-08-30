@@ -63,7 +63,7 @@ controller and reports the disagreement.
 
 ## Prerequisites
 
-- PowerShell 7.6 (LTS)
+- PowerShell 7.4 or later
 - The `Kerberos Authentication Service` and `Kerberos Service Ticket Operations` audit
   subcategories enabled on the domain controllers
 - The `ActiveDirectory` module (RSAT) for the directory-reading functions only. The decode and

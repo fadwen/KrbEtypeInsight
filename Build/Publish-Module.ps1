@@ -189,8 +189,23 @@ if (-not $WhatIfPreference -and -not $ApiKey) {
 # --- 1. Help gates ----------------------------------------------------------------
 # Before staging, because a stale-MAML failure should stop the release rather than leave a
 # staged tree that nobody notices is wrong.
+#
+# $WhatIfPreference is cleared for the duration. Preference variables are inherited by
+# child scopes, so under -WhatIf it reaches Export-MamlCommandHelp inside Build-Help.ps1,
+# which then compiles nothing - and the rehearsal silently stops verifying the very help
+# build it exists to verify. Build-Help.ps1 writes only to maml/ and en-US/, both of which
+# are rebuilt from committed Markdown, so running it for real under -WhatIf is safe.
+# It cannot take -WhatIf:$false directly: it declares [CmdletBinding()] without
+# SupportsShouldProcess, so the parameter does not exist on it.
 if (-not $SkipHelpBuild) {
-    & (Join-Path $PSScriptRoot 'Build-Help.ps1') -ModuleRoot $ModuleRoot | Out-Null
+    $priorWhatIf = $WhatIfPreference
+    $WhatIfPreference = $false
+    try {
+        & (Join-Path $PSScriptRoot 'Build-Help.ps1') -ModuleRoot $ModuleRoot | Out-Null
+    }
+    finally {
+        $WhatIfPreference = $priorWhatIf
+    }
     Write-Information 'Help gates passed and MAML rebuilt.' -InformationAction Continue
 }
 

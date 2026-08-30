@@ -160,7 +160,17 @@ Measure-PlatyPSMarkdown -Path $markdown |
 
 $built = Join-Path $mamlRoot $moduleName $helpFileName
 if (-not (Test-Path $built)) {
-    $produced = (Get-ChildItem (Join-Path $mamlRoot $moduleName) -File).Name -join ', '
+    # The output folder may not exist at all - on a fresh checkout maml/ is git-ignored and
+    # absent, and it also stays absent if Export-MamlCommandHelp was suppressed. Listing it
+    # unguarded throws 'Cannot find path' and buries the actual failure under a message
+    # about the diagnostic.
+    $outputDir = Join-Path $mamlRoot $moduleName
+    $produced = if (Test-Path $outputDir) {
+        (Get-ChildItem $outputDir -File).Name -join ', '
+    }
+    else {
+        '(nothing - the output folder was never created)'
+    }
     throw "Expected '$helpFileName' but PlatyPS produced: $produced. Every .EXTERNALHELP value must match the produced name exactly, including the capital H."
 }
 

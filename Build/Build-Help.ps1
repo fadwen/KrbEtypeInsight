@@ -77,7 +77,7 @@ $mamlRoot = Join-Path $ModuleRoot 'maml'
 $cultureDir = Join-Path $ModuleRoot 'en-US'
 
 if (-not (Test-Path $docsPath)) {
-    throw "Help Markdown not found at '$docsPath'. Run New-MarkdownCommandHelp first - see .github/instructions/platyps.instructions.md."
+    throw "Help Markdown not found at '$docsPath'. Generate it with New-MarkdownCommandHelp -ModuleInfo (Get-Module $moduleName) -OutputFolder (Split-Path -Parent '$docsPath')."
 }
 
 Import-Module $manifest -Force

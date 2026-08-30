@@ -50,7 +50,11 @@ and emits a per-principal risk assessment naming the specific clients that will 
             )
             LicenseUri   = 'https://www.gnu.org/licenses/gpl-3.0.html'
             ProjectUri   = 'https://github.com/fadwen/KrbEtypeInsight'
-            IconUri      = ''
+
+            # IconUri is omitted rather than set to ''. An empty string is not "no icon":
+            # the nuspec writer emits an empty <iconUrl> element and NuGet rejects the pack
+            # with 'IconUrl cannot be empty', so Publish-PSResource fails before it ever
+            # reaches the Gallery. The same applies to HelpInfoURI below.
             ReleaseNotes = @'
 1.0.0 - Initial release. Licensed under the GNU General Public License v3.0.
 
@@ -75,5 +79,6 @@ live domain, and for known limitations.
         }
     }
 
-    HelpInfoURI       = ''
+    # HelpInfoURI is omitted for the same reason, and because there is nothing to point it
+    # at: help is compiled MAML shipped in en-US, not updatable help served over the wire.
 }

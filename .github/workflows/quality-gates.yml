@@ -21,6 +21,11 @@ on:
     branches: [main]
   workflow_dispatch:
 
+  # Callable so release.yml can run these exact gates before publishing. A tag can be
+  # pushed at any commit, including one that never passed a pull request, so the release
+  # re-runs the gates rather than trusting that they ran at some point.
+  workflow_call:
+
 permissions:
   contents: read
 

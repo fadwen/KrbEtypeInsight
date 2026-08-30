@@ -24,3 +24,7 @@ maml/
 
 # Update-MarkdownCommandHelp writes these next to the originals.
 *.md.bak
+
+# Publish staging tree. Build/Publish-Module.ps1 wipes and rebuilds this on every run;
+# it holds only copies of files that are tracked elsewhere.
+out/

@@ -125,6 +125,22 @@ versions](Troubleshooting/Common/Event-Schema-Versions.md).
 
 ## Installation
 
+From the [PowerShell Gallery](https://www.powershellgallery.com/packages/KrbEtypeInsight):
+
+```powershell
+Install-PSResource -Name KrbEtypeInsight
+
+# Or, on a host that still only has PowerShellGet v2:
+Install-Module -Name KrbEtypeInsight -Scope CurrentUser
+```
+
+Requires PowerShell 7.4 or later. The commands that read the directory additionally need the
+`ActiveDirectory` module from RSAT, which is deliberately not a declared dependency — the
+decode and correlation core runs offline against archived `.evtx` with no domain present, and
+those commands import RSAT on demand and report a clear error when it is absent.
+
+From a clone:
+
 ```powershell
 Import-Module .\KrbEtypeInsight.psd1
 ```

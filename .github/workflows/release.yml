@@ -49,7 +49,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # Pinned to match the pin in quality-gates.yml. The publish script rebuilds the MAML,
       # and a different PlatyPS version would emit different XML than the committed help

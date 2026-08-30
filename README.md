@@ -179,6 +179,48 @@ Get-KrbEvent | Get-KrbEtypeRisk -DomainContext $context |
 | `Get-KrbEtypeRisk` | Correlates the above into per-principal risk objects |
 | `Export-KrbEtypeReport` | Self-contained HTML, per-finding CSV, or full-fidelity JSON |
 
+## Command help
+
+Every command ships compiled MAML help, so `Get-Help` works against an installed module with no
+network access:
+
+```powershell
+Get-Help Get-KrbEtypeRisk -Full
+Get-Help Get-KrbEvent -Examples
+```
+
+The Markdown under [`docs/KrbEtypeInsight/`](docs/KrbEtypeInsight/) is the source and the thing to
+edit. `en-US/KrbEtypeInsight-Help.xml` is compiled from it and is never edited by hand. Public
+functions carry `.EXTERNALHELP` and a one-line `.SYNOPSIS` only - putting detail in the comment
+block has no effect, because `.EXTERNALHELP` is what makes `Get-Help` read the XML instead. The
+private functions keep their full comment-based help, since PlatyPS never sees them.
+
+After editing anything under `docs/`, or changing a public function's signature:
+
+```powershell
+./Build/Build-Help.ps1                # validate, then recompile en-US/KrbEtypeInsight-Help.xml
+./Build/Build-Help.ps1 -ValidateOnly  # the checks alone, as a pull request runs them
+```
+
+The validation is not cosmetic. It fails on an unfilled `{{ Fill in }}` template, on a relative
+link under `## RELATED LINKS` - which passes PlatyPS's own structure check and then makes
+`Get-Help` return nothing at all for that command - on drift between the documented and the
+exported command lists, and on a public function that has lost its `.EXTERNALHELP` keyword. Every
+one of those is silent otherwise: the build succeeds and the shipped help is wrong.
+
+To pick up a changed signature, refresh the Markdown from the loaded module rather than editing
+the syntax blocks by hand:
+
+```powershell
+Import-Module ./KrbEtypeInsight.psd1 -Force
+Measure-PlatyPSMarkdown -Path ./docs/KrbEtypeInsight/*.md |
+    Where-Object Filetype -match 'CommandHelp' |
+    Update-MarkdownCommandHelp -Path {$_.FilePath}
+```
+
+Requires [Microsoft.PowerShell.PlatyPS](https://github.com/PowerShell/platyPS) 1.0.3 or later. The
+original `platyPS` 0.14 is a different module with different cmdlet names and is not supported.
+
 ## Typical workflows
 
 ### Scope an RC4 removal project

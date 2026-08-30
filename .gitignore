@@ -16,3 +16,11 @@ KrbEtypeReport*.json
 .idea/
 Thumbs.db
 desktop.ini
+
+# PlatyPS build intermediate. The Markdown under docs/ is the source and the
+# packaged help is en-US/KrbEtypeInsight-Help.xml; maml/ is just the staging
+# folder Export-MamlCommandHelp writes to on the way there.
+maml/
+
+# Update-MarkdownCommandHelp writes these next to the originals.
+*.md.bak

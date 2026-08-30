@@ -1,0 +1,2133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<helpItems xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" schema="maml" xmlns="http://msh">
+  <command:command>
+    <command:details>
+      <command:name>ConvertFrom-KrbEtype</command:name>
+      <maml:description>
+        <maml:para>Decodes Kerberos encryption type values from any of the three forms Windows emits them in</maml:para>
+      </maml:description>
+      <command:verb>ConvertFrom</command:verb>
+      <command:noun>KrbEtype</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>Turns a raw Kerberos encryption-type value into a described object.
+Which decoding is
+applied depends on which parameter is used, because the three forms are three
+different data types that happen to be written as small integers:
+
+- -TicketEtype decodes an RFC 3961 encryption type NUMBER, the form found in the
+  TicketEncryptionType, SessionKeyEncryptionType and PreAuthEncryptionType fields of
+  events 4768 and 4769.
+In this system RC4-HMAC is 23 (0x17) and
+  AES256-CTS-HMAC-SHA1-96 is 18 (0x12).
+
+- -SupportedEncryptionTypes decodes an MS-KILE 2.2.7 BITMASK, the form found in the
+  msDS-SupportedEncryptionTypes attribute, in the DefaultDomainSupportedEncTypes
+  registry value, on trustedDomain objects, and in the *SupportedEncryptionTypes
+  fields of version 2 events.
+In this system RC4-HMAC is bit 0x4 and
+  AES256-CTS-HMAC-SHA1-96 is bit 0x10.
+
+- -AdvertizedEtype decodes the newline-separated list of Windows etype NAMES found in
+  the ClientAdvertizedEncryptionTypes field of a version 2 event - the list of
+  algorithms the client actually offered on the wire.
+
+The two numeric systems are not interconvertible by arithmetic and this function
+never treats them as if they were.
+Passing a ticket etype to
+-SupportedEncryptionTypes decodes 23 as DES-CBC-CRC + DES-CBC-MD5 + RC4-HMAC +
+AES128, which is meaningless; the parameter sets exist to make that mistake require
+deliberate effort.
+
+Business value: this is the decode layer the rest of the module and the risk report
+are built on.
+It has no dependency on Active Directory or on the event log, so it can
+be exercised in full against captured fixtures with no domain present.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>ConvertFrom-KrbEtype</maml:name>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>TicketEtype</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+          <dev:type>
+            <maml:name>System.Object</maml:name>
+          </dev:type>
+        </command:parameter>
+      </command:syntaxItem>
+      <command:syntaxItem>
+        <maml:name>ConvertFrom-KrbEtype</maml:name>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>SupportedEncryptionTypes</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+          <dev:type>
+            <maml:name>System.Object</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>DomainDefaultEncryptionTypes</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">int</command:parameterValue>
+          <dev:type>
+            <maml:name>System.Int32</maml:name>
+          </dev:type>
+        </command:parameter>
+      </command:syntaxItem>
+      <command:syntaxItem>
+        <maml:name>ConvertFrom-KrbEtype</maml:name>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>AdvertizedEtype</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string[]</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String[]</maml:name>
+          </dev:type>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="Named" aliases="none">
+        <maml:name>AdvertizedEtype</maml:name>
+        <maml:description>
+          <maml:para>[System.String[]] (Mandatory in the AdvertizedEtype set, Pipeline: ByValue)</maml:para>
+          <maml:para>The etype names a client advertised.
+Accepts either the raw multi-line, tab-indented
+block exactly as it appears in ClientAdvertizedEncryptionTypes, or an array of
+individual name strings.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String[]</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String[]</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>DomainDefaultEncryptionTypes</maml:name>
+        <maml:description>
+          <maml:para>[System.Int32] (Optional, No Pipeline Support)</maml:para>
+          <maml:para>The bitmask the KDC falls back to when msDS-SupportedEncryptionTypes is unset or
+zero - that is, the DefaultDomainSupportedEncTypes registry value on the domain
+controllers.
+Defaults to 0x27, which is the Windows default when the value has never
+been written.</maml:para>
+          <maml:para>Supply the real value from Get-KrbDomainEtypeContext when assessing a live domain.
+Getting this wrong is how an assessment concludes that several hundred accounts with
+an unset attribute support nothing at all, or that they support RC4 only - neither is
+true, because 0x27 also carries the AES256 session-key bit.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>System.Int32</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="Named" aliases="none">
+        <maml:name>SupportedEncryptionTypes</maml:name>
+        <maml:description>
+          <maml:para>[System.Object] (Mandatory in the SupportedEncryptionTypes set, Pipeline: ByValue)</maml:para>
+          <maml:para>An MS-KILE supported-encryption-types bitmask.
+Accepts an integer, a hex string, or
+the full rendering a version 2 event uses, such as
+'0x1F (DES, RC4, AES128-SHA96, AES256-SHA96)'.
+Pass $null to describe an attribute
+that is not set at all, which is a different state from a value of 0 in every respect
+except its effect.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.Object</command:parameterValue>
+        <dev:type>
+          <maml:name>System.Object</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="Named" aliases="none">
+        <maml:name>TicketEtype</maml:name>
+        <maml:description>
+          <maml:para>[System.Object] (Mandatory in the TicketEtype set, Pipeline: ByValue)</maml:para>
+          <maml:para>An RFC 3961 encryption type number.
+Accepts an integer, a hex string such as '0x12',
+or a decimal string.
+The KDC's no-ticket-issued sentinel - 0xffffffff, written on
+every failure event - decodes to a NotApplicable result rather than to a cipher.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.Object</command:parameterValue>
+        <dev:type>
+          <maml:name>System.Object</maml:name>
+        </dev:type>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>System.Object</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>An encryption type value, accepted from the pipeline by value and bound to **-TicketEtype**.
+Piping bare numbers therefore decodes them as RFC 3961 ticket encryption types without naming a
+parameter. Accepts an integer, a decimal string, or a `0x`-prefixed hexadecimal string.</maml:para>
+        </maml:description>
+      </command:inputType>
+      <command:inputType>
+        <dev:type>
+          <maml:name>System.String[]</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>A list of Windows encryption type names, bound to **-AdvertizedEtype**. Accepts the
+`ClientAdvertizedEncryptionTypes` field of a version 2 event verbatim — a single string whose
+entries are separated by newlines and tabs — or an already-split array of names.</maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>KrbEtypeInsight.TicketEtype</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>Returned by the **TicketEtype** parameter set. Describes one RFC 3961 encryption type number:
+`Value` and `Hex`, the `DisplayName` and `Family`, a `Strength` of `Weak` or `Strong`, the `Rfc`
+that defines it, `RemovedByHardening` for the types an RC4 removal takes away, and
+`IsRecognized`, which is `$false` for a number outside the catalog rather than an error.</maml:para>
+        </maml:description>
+      </command:returnValue>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>KrbEtypeInsight.EtypeFlags</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>Returned by the **SupportedEncryptionTypes** parameter set. Decomposes an MS-KILE 2.2.7 bitmask
+into `Flags` and `FlagNames`, the `TicketEtypes` and `SessionKeyEtypes` the bitmask permits, and
+the `SupportsDes`, `SupportsRc4`, `SupportsAes` and `SupportsFast` booleans a decision is
+usually made on. When the attribute is unset, `IsUnset` is `$true` and `EffectiveValue` carries
+what the account actually resolves to — the domain default supplied by
+**-DomainDefaultEncryptionTypes**, or the documented fallback when it is omitted. `UnknownBits`
+reports bits outside the published specification instead of discarding them.</maml:para>
+        </maml:description>
+      </command:returnValue>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>KrbEtypeInsight.AdvertizedEtypeSet</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>Returned by the **AdvertizedEtype** parameter set. Summarises what a client offered: the
+original `Names`, the `Etypes` and `Families` they map to, `SupportsAes`, `SupportsRc4` and
+`SupportsDes`, and `LegacyOnly` — the property that identifies a client an RC4 removal will
+break. `UnrecognizedNames` lists any name absent from the catalog, so an unfamiliar client
+stack is visible rather than silently dropped.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>Author: Jeffrey Stuhr
+Blog: https://www.techbyjeff.net
+LinkedIn: https://www.linkedin.com/in/jeffrey-stuhr-034214aa/
+
+TROUBLESHOOTING:
+- Unknown or unexpected etype values: .\Troubleshooting\Common\Unknown-Encryption-Types.md
+- Bitmask versus ticket etype confusion: .\Troubleshooting\Common\Etype-Numbering-Systems.md</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>--------- Example 1: Decodes a ticket encryption type taken straight from a 4769 event ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+ConvertFrom-KrbEtype -TicketEtype '0x17'
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Output: An object naming RC4-HMAC, family RC4, strength Weak, RemovedByHardening true.</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Use case: Establishing that a service ticket was issued under RC4.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 2: Decodes an AES-only msDS-SupportedEncryptionTypes value ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+ConvertFrom-KrbEtype -SupportedEncryptionTypes 24
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Output: AES128 and AES256 flags set, SupportsRc4 false, SupportsAes true.</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Use case: Confirming an account has already been hardened.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 3: Describes an account whose attribute has never been set ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+ConvertFrom-KrbEtype -SupportedEncryptionTypes $null -DomainDefaultEncryptionTypes 0x27
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Output: UsesDomainDefault true, and the effective flags the KDC will actually apply.</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Use case: Assessing the several hundred accounts in a typical domain that inherit the default.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 4: Decodes what a client offered on the wire ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+ConvertFrom-KrbEtype -AdvertizedEtype "AES256-CTS-HMAC-SHA1-96`n`tRC4-HMAC-NT"
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Output: Both etypes resolved, SupportsAes true - this client survives hardening.</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Use case: Distinguishing a client that merely received RC4 from one that can only do RC4.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 5: Profiles which ciphers a domain is actually issuing tickets under ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Get-KrbEvent -MaxEvents 500 | ForEach-Object { ConvertFrom-KrbEtype -TicketEtype $_.TicketEtype } |
+    Group-Object DisplayName | Sort-Object Count -Descending
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Output: A count per encryption type across the sampled events.</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Use case: The first question to answer before any hardening change is scheduled.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version</maml:linkText>
+        <maml:uri>https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-kile/6cfc7b50-11ed-4b4d-846d-6f08f0812919</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>MS-KILE 2.2.7 - Supported Encryption Types Bit Flags</maml:linkText>
+        <maml:uri>https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-kile/6cfc7b50-11ed-4b4d-846d-6f08f0812919</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>RFC 3961 - Encryption and Checksum Specifications for Kerberos 5</maml:linkText>
+        <maml:uri>https://www.rfc-editor.org/rfc/rfc3961</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Get-KrbEvent</maml:linkText>
+        <maml:uri>https://github.com/fadwen/KrbEtypeInsight/blob/main/docs/KrbEtypeInsight/Get-KrbEvent.md</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Get-KrbPrincipalEtype</maml:linkText>
+        <maml:uri>https://github.com/fadwen/KrbEtypeInsight/blob/main/docs/KrbEtypeInsight/Get-KrbPrincipalEtype.md</maml:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command>
+    <command:details>
+      <command:name>Export-KrbEtypeReport</command:name>
+      <maml:description>
+        <maml:para>Writes a Kerberos encryption type risk assessment to HTML, CSV or JSON</maml:para>
+      </maml:description>
+      <command:verb>Export</command:verb>
+      <command:noun>KrbEtypeReport</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>Renders the output of Get-KrbEtypeRisk into a form that can be circulated, attached
+to a change record, or diffed against a previous run.
+
+Three formats, for three different readers:
+
+- Html produces a single self-contained file with a summary, a prioritised table and
+  the evidence behind every finding.
+No external stylesheet, script or font is
+  referenced, so it survives being emailed, dropped on a file share, or opened on a
+  machine with no internet access - which is the machine most people open a security
+  report on.
+It is the format to send to an application owner.
+
+- Csv produces one row per finding rather than one row per principal, because a
+  principal with four findings needs four rows to be filtered and pivoted usefully in
+  a spreadsheet.
+Evidence is flattened to text.
+
+- Json preserves the object graph including all evidence, and is the format to keep
+  for comparison against the next run.
+This is what makes "KRB002 is down from 40
+  accounts to 3" answerable.
+
+Content is HTML-encoded on the way in.
+Every principal name, service name and client
+address in this report originated in the event log, written there by whoever made the
+request - a service principal name is chosen by the client and can contain markup.
+An
+assessment report that renders its input verbatim is a stored cross-site scripting
+vector aimed at the person reading it, which is a poor way to end a security review.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Export-KrbEtypeReport</maml:name>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="0" aliases="none">
+          <maml:name>Risk</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">Object[]</command:parameterValue>
+          <dev:type>
+            <maml:name>System.Object[]</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="1" aliases="none">
+          <maml:name>Path</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="2" aliases="none">
+          <maml:name>Format</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="3" aliases="none">
+          <maml:name>Title</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="4" aliases="none">
+          <maml:name>DomainContext</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+          <dev:type>
+            <maml:name>System.Object</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>PassThru</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>WhatIf</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>Confirm</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="cf">
+        <maml:name>Confirm</maml:name>
+        <maml:description>
+          <maml:para>Prompts you for confirmation before running the cmdlet.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="4" aliases="none">
+        <maml:name>DomainContext</maml:name>
+        <maml:description>
+          <maml:para>[System.Object] (Optional, No Pipeline Support)</maml:para>
+          <maml:para>Domain baseline from Get-KrbDomainEtypeContext.
+When supplied, the HTML report opens
+with the functional level, domain default and controller agreement that the findings
+were judged against - without which a reader cannot tell whether the baseline was
+measured or assumed.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.Object</command:parameterValue>
+        <dev:type>
+          <maml:name>System.Object</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="2" aliases="none">
+        <maml:name>Format</maml:name>
+        <maml:description>
+          <maml:para>[System.String] (Optional, No Pipeline Support)</maml:para>
+          <maml:para>Html, Csv or Json.
+Defaults to Html.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>PassThru</maml:name>
+        <maml:description>
+          <maml:para>[System.Management.Automation.SwitchParameter] (Optional, No Pipeline Support)</maml:para>
+          <maml:para>Return the written file as a FileInfo object.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="1" aliases="none">
+        <maml:name>Path</maml:name>
+        <maml:description>
+          <maml:para>[System.String] (Mandatory, No Pipeline Support)</maml:para>
+          <maml:para>Destination file.
+The parent directory must exist.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="0" aliases="none">
+        <maml:name>Risk</maml:name>
+        <maml:description>
+          <maml:para>[System.Object[]] (Mandatory, Pipeline: ByValue)</maml:para>
+          <maml:para>Risk objects from Get-KrbEtypeRisk.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.Object[]</command:parameterValue>
+        <dev:type>
+          <maml:name>System.Object[]</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="3" aliases="none">
+        <maml:name>Title</maml:name>
+        <maml:description>
+          <maml:para>[System.String] (Optional, No Pipeline Support)</maml:para>
+          <maml:para>Report heading.
+Defaults to a generic title with the current date.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="wi">
+        <maml:name>WhatIf</maml:name>
+        <maml:description>
+          <maml:para>Runs the command in a mode that only reports what would happen without performing the actions.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>KrbEtypeInsight.Risk</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>Risk objects from `Get-KrbEtypeRisk`, accepted from the pipeline by value. The whole collection
+is buffered before rendering, because the report's summary counts and its ordering are
+properties of the set rather than of any one object.</maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>By default this cmdlet writes a file and returns nothing, so it can end a pipeline without
+producing console output.</maml:para>
+        </maml:description>
+      </command:returnValue>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>System.IO.FileInfo</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>When **-PassThru** is specified, the written file is returned — for a subsequent `Send-MailMessage`,
+an upload, or an attachment step in a pipeline.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>Author: Jeffrey Stuhr
+Blog: https://www.techbyjeff.net
+LinkedIn: https://www.linkedin.com/in/jeffrey-stuhr-034214aa/
+
+The report names accounts, service principal names and client addresses.
+Handle it as
+an internal document.
+
+TROUBLESHOOTING:
+- Report rendering: .\Troubleshooting\Common\Report-Output.md</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>--------- Example 1: Produces the standard assessment report ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Get-KrbEvent | Get-KrbEtypeRisk | Export-KrbEtypeReport -Path .\krb-risk.html
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Output: A self-contained HTML file.</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Use case: The artefact to attach to a change request.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 2: A report that states the baseline it was judged against ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+$context = Get-KrbDomainEtypeContext
+PS&gt; Get-KrbEvent | Get-KrbEtypeRisk -DomainContext $context |
+    Export-KrbEtypeReport -Path .\krb-risk.html -DomainContext $context `
+    -Title 'RC4 removal readiness - Phase 1'
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Output: HTML including the domain functional level and per-controller policy.</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Use case: A report that will be read by someone who was not in the room.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 3: Preserves the full object graph for comparison ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Get-KrbEvent | Get-KrbEtypeRisk | Export-KrbEtypeReport -Path .\krb-risk.json -Format Json
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Output: JSON with all evidence retained.</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Use case: Establishing the baseline for a quarterly trend.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version</maml:linkText>
+        <maml:uri />
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>KB5021131 - Managing the Kerberos protocol changes for CVE-2022-37966</maml:linkText>
+        <maml:uri>https://support.microsoft.com/help/5021131</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Get-KrbEtypeRisk</maml:linkText>
+        <maml:uri>https://github.com/fadwen/KrbEtypeInsight/blob/main/docs/KrbEtypeInsight/Get-KrbEtypeRisk.md</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Get-KrbEvent</maml:linkText>
+        <maml:uri>https://github.com/fadwen/KrbEtypeInsight/blob/main/docs/KrbEtypeInsight/Get-KrbEvent.md</maml:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command>
+    <command:details>
+      <command:name>Get-KrbDomainEtypeContext</command:name>
+      <maml:description>
+        <maml:para>Collects the domain-wide settings that govern Kerberos encryption type selection</maml:para>
+      </maml:description>
+      <command:verb>Get</command:verb>
+      <command:noun>KrbDomainEtypeContext</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>Gathers the context an individual account's configuration has to be read against.
+Per-account encryption types do not act alone: what the KDC actually issues is the
+intersection of the account's types, the domain default, the controller's own policy
+and, for cross-realm requests, the trust's types.
+
+What is collected and why each item changes a conclusion:
+
+- Domain and forest functional level.
+AES key derivation requires a domain functional
+  level of Windows Server 2008 or higher.
+Below that, no account in the domain has an
+  AES key regardless of its attributes, and an AES-only hardening change breaks
+  everything.
+
+- DefaultDomainSupportedEncTypes, read from every reachable controller.
+This is the
+  value the KDC falls back to when msDS-SupportedEncryptionTypes is unset or zero,
+  which in a typical domain is the great majority of accounts.
+Two things about it
+  matter more than its value.
+First, it is a per-controller registry setting, not a
+  replicated directory attribute, so controllers can and do disagree - and a domain
+  where they disagree authenticates differently depending on which controller a
+  client reaches, which produces intermittent failures that survive every attempt to
+  reproduce them.
+Second, its unwritten default of 0x27 includes the AES256
+  session-key bit, so accounts inheriting it are not the RC4-only accounts a naive
+  reading suggests.
+
+- The controller-side Kerberos policy value from
+  Policies\System\Kerberos\Parameters\SupportedEncryptionTypes, which is what the
+  "Network security: Configure encryption types allowed for Kerberos" group policy
+  setting writes.
+Applied to a controller, it constrains the KDC itself.
+
+- krbtgt's own encryption types and password age.
+Every TGT in the domain is
+  encrypted with a krbtgt key, so krbtgt is the one account whose encryption types
+  are a domain-wide property.
+Its password age also bounds which key material exists.
+
+- Trust encryption types.
+A trust whose msDS-SupportedEncryptionTypes omits AES
+  forces RC4 on every cross-realm ticket regardless of what either side's accounts
+  support, and is the most common reason a domain that has "finished" removing RC4
+  keeps issuing it.
+
+- Controller operating systems, because the RFC 8009 SHA-2 encryption types and the
+  version 2 audit event schema are only available on newer builds.
+
+Business value: this function answers "what baseline am I assessing against", which
+is the question that determines whether every other finding in the report is correct
+or merely plausible.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Get-KrbDomainEtypeContext</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="0" aliases="none">
+          <maml:name>Server</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="1" aliases="none">
+          <maml:name>ComputerName</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string[]</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String[]</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="2" aliases="none">
+          <maml:name>Credential</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">pscredential</command:parameterValue>
+          <dev:type>
+            <maml:name>System.Management.Automation.PSCredential</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>SkipRegistry</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="1" aliases="none">
+        <maml:name>ComputerName</maml:name>
+        <maml:description>
+          <maml:para>[System.String[]] (Optional, No Pipeline Support)</maml:para>
+          <maml:para>Restrict registry collection to specific controllers.
+When omitted, every controller
+in the domain is contacted.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String[]</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String[]</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="2" aliases="none">
+        <maml:name>Credential</maml:name>
+        <maml:description>
+          <maml:para>[System.Management.Automation.PSCredential] (Optional, No Pipeline Support)</maml:para>
+          <maml:para>Credentials for the directory query and for remote registry access.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.Management.Automation.PSCredential</command:parameterValue>
+        <dev:type>
+          <maml:name>System.Management.Automation.PSCredential</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="0" aliases="none">
+        <maml:name>Server</maml:name>
+        <maml:description>
+          <maml:para>[System.String] (Optional, No Pipeline Support)</maml:para>
+          <maml:para>Domain controller to read directory data from.
+Defaults to whichever the
+ActiveDirectory module selects.
+Registry data is still gathered from every controller
+regardless of this setting, because disagreement between controllers is one of the
+findings.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>SkipRegistry</maml:name>
+        <maml:description>
+          <maml:para>[System.Management.Automation.SwitchParameter] (Optional, No Pipeline Support)</maml:para>
+          <maml:para>Skip the per-controller registry collection and report the documented Windows default
+of 0x27 as the domain default.</maml:para>
+          <maml:para>Use this when remote management to the controllers is unavailable, and read the
+resulting assessment knowing that its baseline is assumed rather than measured.
+The
+output records which of the two happened in DomainDefaultSource.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>This cmdlet does not accept pipeline input. The domain to assess is named with **-Server** or
+discovered from the current context.</maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>KrbEtypeInsight.DomainContext</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>A single object describing the baseline every per-principal judgement is made against: the
+domain and forest functional levels, the `krbtgt` account's own encryption types and key
+material, the encryption types configured on each outbound and inbound trust, and one entry per
+domain controller carrying that controller's `DefaultDomainSupportedEncTypes` registry value.
+
+The per-controller breakdown is the point of the object rather than a detail of it. Controllers
+are permitted to disagree, the effective default for an account with an unset attribute depends
+on which controller answers, and a domain where they disagree cannot be assessed as though it
+had one baseline. Where remote registry collection is refused the entry records the documented
+default and says the value was assumed, so a partial baseline is distinguishable from a
+confirmed one.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>Author: Jeffrey Stuhr
+Blog: https://www.techbyjeff.net
+LinkedIn: https://www.linkedin.com/in/jeffrey-stuhr-034214aa/
+
+Remote registry collection uses PowerShell remoting.
+Where that is unavailable the
+function degrades to the documented default and says so rather than failing, because
+a partial baseline reported honestly is more useful than no assessment at all.
+
+Read-only throughout.
+
+TROUBLESHOOTING:
+- Remote registry access: .\Troubleshooting\Integration\Remote-Registry-Access.md
+- Inconsistent controllers: .\Troubleshooting\Common\Controller-Policy-Drift.md
+- Trust encryption types: .\Troubleshooting\Common\Trust-Encryption-Types.md</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>--------- Example 1: Collects the full domain encryption type baseline ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Get-KrbDomainEtypeContext
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Output: A KrbEtypeInsight.DomainContext object covering functional level, per-controller policy, krbtgt and trusts.</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Use case: The first command to run in an assessment; its DomainDefaultEncryptionTypes value feeds every subsequent per-account decode.</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Duration: A few seconds per domain controller.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 2: Finds controllers whose local Kerberos policy differs from the rest ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+$context = Get-KrbDomainEtypeContext
+PS&gt; $context.DomainControllers | Where-Object { -not $_.AgreesWithDomainDefault }
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Output: The controllers responsible for intermittent, unreproducible authentication failures.</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Use case: Explaining why one site's clients fail and another's do not.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 3: Reads every account against the domain's real default rather than an assumed one ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+$context = Get-KrbDomainEtypeContext
+PS&gt; Get-KrbPrincipalEtype -All -DomainDefaultEncryptionTypes $context.DomainDefaultEncryptionTypes
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Output: Correct effective encryption types for accounts with an unset attribute.</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Use case: The supported way to run a per-account assessment.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version</maml:linkText>
+        <maml:uri />
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>KB5021131 - Managing the Kerberos protocol changes for CVE-2022-37966</maml:linkText>
+        <maml:uri>https://support.microsoft.com/help/5021131</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>MS-KILE 2.2.7 - Supported Encryption Types Bit Flags</maml:linkText>
+        <maml:uri>https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-kile/6cfc7b50-11ed-4b4d-846d-6f08f0812919</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Get-KrbPrincipalEtype</maml:linkText>
+        <maml:uri>https://github.com/fadwen/KrbEtypeInsight/blob/main/docs/KrbEtypeInsight/Get-KrbPrincipalEtype.md</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Get-KrbEtypeRisk</maml:linkText>
+        <maml:uri>https://github.com/fadwen/KrbEtypeInsight/blob/main/docs/KrbEtypeInsight/Get-KrbEtypeRisk.md</maml:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command>
+    <command:details>
+      <command:name>Get-KrbEtypeRisk</command:name>
+      <maml:description>
+        <maml:para>Predicts which principals and clients a Kerberos encryption type hardening change will break</maml:para>
+      </maml:description>
+      <command:verb>Get</command:verb>
+      <command:noun>KrbEtypeRisk</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>Correlates observed authentication behaviour with directory configuration and domain
+baseline, and emits one risk object per affected principal describing what a proposed
+encryption type change would do to it - with the evidence attached.
+
+This is the question the configuration scripts cannot answer.
+Setting an account's
+msDS-SupportedEncryptionTypes to AES is a one-line change; knowing whether that
+account has ever successfully used AES, whether it even holds an AES key, and which
+clients will stop working when RC4 goes away, requires putting three independent
+sources next to each other:
+
+- What the KDC actually issued, from events 4768 and 4769.
+- What the directory says each principal supports, from msDS-SupportedEncryptionTypes
+  and userAccountControl.
+- What the domain permits by default, from the controllers' own policy.
+
+The correlations that produce the useful findings:
+
+1.
+Available keys against configured types.
+Version 2 events report which key material
+   a principal actually holds.
+An account configured for AES that holds no AES key is
+   the single most common cause of a hardening rollback: Kerberos keys are derived
+   when the password is set, so an account whose password predates the change has
+   nothing to encrypt with and the KDC returns KDC_ERR_NULL_KEY.
+Configuration alone
+   cannot see this.
+It is finding KRB002 and it is why this module exists.
+
+2.
+Client advertisement against service dependency.
+Every 4768 records the full list
+   of encryption types the client offered.
+Indexing that by client account, and then
+   looking up each client of a given service, converts "this service only ever gets
+   RC4 tickets" into "these twelve named clients advertise no AES at all and will
+   fail the moment the KDC stops offering RC4".
+That named list is what an
+   application owner needs in order to act, and no amount of configuration auditing
+   produces it.
+
+3.
+Existing failures against the proposed change.
+Events already carrying
+   KDC_ERR_ETYPE_NOTSUPP or KDC_ERR_NULL_KEY are not predictions - they are breakage
+   that has already happened and is being absorbed by retries somewhere.
+
+Confidence is reported, not assumed.
+Where the controllers emit the older version 0
+or version 1 event schema, the available-key and client-advertisement fields do not
+exist, and the engine falls back to weaker inference from ticket encryption types
+alone.
+It says so on every affected object rather than presenting an inference as an
+observation.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Get-KrbEtypeRisk</maml:name>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="0" aliases="Event">
+          <maml:name>KerberosEvent</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">Object[]</command:parameterValue>
+          <dev:type>
+            <maml:name>System.Object[]</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="1" aliases="none">
+          <maml:name>Principal</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">Object[]</command:parameterValue>
+          <dev:type>
+            <maml:name>System.Object[]</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="2" aliases="none">
+          <maml:name>DomainContext</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+          <dev:type>
+            <maml:name>System.Object</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="3" aliases="none">
+          <maml:name>TargetEncryptionTypes</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">int</command:parameterValue>
+          <dev:type>
+            <maml:name>System.Int32</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>Offline</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>IncludeHealthy</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="2" aliases="none">
+        <maml:name>DomainContext</maml:name>
+        <maml:description>
+          <maml:para>[System.Object] (Optional, No Pipeline Support)</maml:para>
+          <maml:para>Domain baseline from Get-KrbDomainEtypeContext.
+When omitted and -Offline is not set,
+it is collected automatically.
+Supplies the true domain default against which
+accounts with an unset attribute are judged, and contributes trust and krbtgt
+findings of its own.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.Object</command:parameterValue>
+        <dev:type>
+          <maml:name>System.Object</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>IncludeHealthy</maml:name>
+        <maml:description>
+          <maml:para>[System.Management.Automation.SwitchParameter] (Optional, No Pipeline Support)</maml:para>
+          <maml:para>Also emit principals that the change would not affect.
+Off by default so that the
+output is a work list rather than an inventory.</maml:para>
+          <maml:para>Turn it on when producing evidence that a change is safe, where the principals with
+nothing wrong are the point.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="0" aliases="Event">
+        <maml:name>KerberosEvent</maml:name>
+        <maml:description>
+          <maml:para>[System.Object[]] (Mandatory, Pipeline: ByValue)</maml:para>
+          <maml:para>Decoded events from Get-KrbEvent.
+The assessment is only as good as this window; see
+the StartTime guidance on Get-KrbEvent for why thirty days is the practical minimum.</maml:para>
+          <maml:para>Aliased to -Event, which reads better at the console.
+The parameter itself cannot be
+named Event: $Event is a PowerShell automatic variable, populated inside the action
+block of an event registration, and a parameter of that name shadows it.
+Nothing in
+this function would notice, but a caller who pipes into it from inside such a block
+would, and the failure would be baffling.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.Object[]</command:parameterValue>
+        <dev:type>
+          <maml:name>System.Object[]</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>Offline</maml:name>
+        <maml:description>
+          <maml:para>[System.Management.Automation.SwitchParameter] (Optional, No Pipeline Support)</maml:para>
+          <maml:para>Assess purely from the event data, making no directory or registry calls.</maml:para>
+          <maml:para>This is the mode for analysing archived logs on a machine with no domain
+connectivity.
+Version 2 events carry enough of each principal's configuration inline
+that the assessment remains substantially complete; against older event schemas it
+degrades considerably, and the ConfidenceNotes on each object record what was lost.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="1" aliases="none">
+        <maml:name>Principal</maml:name>
+        <maml:description>
+          <maml:para>[System.Object[]] (Optional, No Pipeline Support)</maml:para>
+          <maml:para>Directory configuration from Get-KrbPrincipalEtype.
+When omitted and -Offline is not
+set, the domain is enumerated once and indexed in memory.</maml:para>
+          <maml:para>Supplying this explicitly is worthwhile when assessing repeatedly against the same
+directory snapshot, and required when the analysis machine cannot reach the domain.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.Object[]</command:parameterValue>
+        <dev:type>
+          <maml:name>System.Object[]</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="3" aliases="none">
+        <maml:name>TargetEncryptionTypes</maml:name>
+        <maml:description>
+          <maml:para>[System.Int32] (Optional, No Pipeline Support)</maml:para>
+          <maml:para>The msDS-SupportedEncryptionTypes bitmask the change would move to.
+Defaults to 0x18
+(24) - AES128 and AES256, with RC4 and DES removed - which is what an RC4 removal
+project is aiming at.</maml:para>
+          <maml:para>Set it to 0x1C (28) to model the intermediate step of adding AES while leaving RC4
+in place, which should produce no Critical findings at all; if it does, that step is
+not as safe as it is usually assumed to be.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>System.Int32</maml:name>
+        </dev:type>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>KrbEtypeInsight.Event</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>Decoded events from `Get-KrbEvent`, accepted from the pipeline by value. Events are buffered in
+memory until the pipeline completes, because a per-principal view cannot be built from a stream
+— the last event for a principal may change the conclusion drawn from the first.</maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>KrbEtypeInsight.Risk</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>One object per principal observed in the collection. `RiskLevel` and `RiskScore` rank the
+result, `Findings` and `FindingCodes` say which rules fired and why, and
+`WillBreakOnHardening` is the single boolean a change decision turns on.
+
+`Clients` and `ClientsWithoutAesSupport` are the deliverable. They name the specific machines
+that depend on the principal and, of those, the ones that advertised no AES encryption type at
+all — the list an application owner has to act on. `RequestCount`, `FirstSeen` and `LastSeen`
+establish how current the observation is, and `ResolvedInDirectory` distinguishes a principal
+seen in events but absent from the directory from one that was confirmed.
+
+`WillBreakOnHardening` means "predicted to break given observed use", not "cannot work". A
+principal with no traffic in the collection window is reported as `KRB012` rather than as
+breaking: absence of traffic is not evidence of safety.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>Author: Jeffrey Stuhr
+Blog: https://www.techbyjeff.net
+LinkedIn: https://www.linkedin.com/in/jeffrey-stuhr-034214aa/
+
+Read-only.
+This function predicts the effect of a change; it never makes one.
+
+Events are buffered in memory before correlation, because a per-principal view cannot
+be built from a stream.
+Peak memory is roughly 2 KB per event.
+For collections beyond
+a few hundred thousand events, assess one controller's archive at a time and merge
+the resulting risk objects.
+
+TROUBLESHOOTING:
+- Finding code reference: .\Troubleshooting\Common\Finding-Codes.md
+- Risk scoring: .\Troubleshooting\Common\Risk-Scoring.md
+- Low confidence results: .\Troubleshooting\Common\Event-Schema-Versions.md
+- Memory use on large collections: .\Troubleshooting\Performance\Event-Volume.md</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>--------- Example 1: A complete assessment of an RC4 removal against the last 30 days ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Get-KrbEvent -MaxEvents 50000 | Get-KrbEtypeRisk | Sort-Object RiskScore -Descending
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Output: One risk object per affected principal, worst first.</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Use case: The main entry point; everything else in the module supports this line.</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Duration: 2 to 15 minutes depending on domain and event volume.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 2: Produces the named list of clients each critical service would take down ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+$risks = Get-KrbEvent -EventId 4768,4769 | Get-KrbEtypeRisk
+PS&gt; $risks | Where-Object RiskLevel -eq 'Critical' |
+    Select-Object PrincipalName, RequestCount, ClientCount,
+    @{ n = 'BreaksClients'; e = { $_.ClientsWithoutAesSupport -join ', ' } }
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Output: Service, its request volume, and the specific clients that cannot do AES.</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Use case: The table to send to each application owner - it names their machines, not yours.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 3: Models the intermediate step of adding AES while keeping RC4 ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Get-KrbEvent | Get-KrbEtypeRisk -TargetEncryptionTypes 0x1C |
+    Where-Object RiskLevel -in 'Critical', 'High'
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Output: Anything that would break even from that supposedly safe change.</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Use case: Validating the first phase of a staged rollout before scheduling it.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 4: Assesses archived logs with no domain connectivity ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Get-KrbEvent -Path .\dc01.evtx, .\dc02.evtx -MaxEvents 0 | Get-KrbEtypeRisk -Offline
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Output: Risk objects built entirely from version 2 event content.</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Use case: Analysing a customer's collected logs on your own machine.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version</maml:linkText>
+        <maml:uri />
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>KB5021131 - Managing the Kerberos protocol changes for CVE-2022-37966</maml:linkText>
+        <maml:uri>https://support.microsoft.com/help/5021131</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>RFC 4120 - The Kerberos Network Authentication Service (V5)</maml:linkText>
+        <maml:uri>https://www.rfc-editor.org/rfc/rfc4120</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Get-KrbEvent</maml:linkText>
+        <maml:uri>https://github.com/fadwen/KrbEtypeInsight/blob/main/docs/KrbEtypeInsight/Get-KrbEvent.md</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Get-KrbDomainEtypeContext</maml:linkText>
+        <maml:uri>https://github.com/fadwen/KrbEtypeInsight/blob/main/docs/KrbEtypeInsight/Get-KrbDomainEtypeContext.md</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Export-KrbEtypeReport</maml:linkText>
+        <maml:uri>https://github.com/fadwen/KrbEtypeInsight/blob/main/docs/KrbEtypeInsight/Export-KrbEtypeReport.md</maml:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command>
+    <command:details>
+      <command:name>Get-KrbEvent</command:name>
+      <maml:description>
+        <maml:para>Collects and decodes Kerberos authentication audit events from domain controllers or archived logs</maml:para>
+      </maml:description>
+      <command:verb>Get</command:verb>
+      <command:noun>KrbEvent</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>Reads security audit events 4768 (TGT requested), 4769 (service ticket requested) and
+4771 (pre-authentication failed), and returns them in the single normalised schema the
+rest of the module consumes.
+Every encryption type, result code and pre-authentication
+type is decoded on the way out, so no caller has to know which of the two Kerberos
+numbering systems a given field belongs to.
+
+Collection sources:
+
+- The current domain's controllers, discovered automatically.
+This is the default and
+  needs no parameters.
+- Named computers, for a subset of controllers or a read-only DC.
+- Archived .evtx files, which is both the way to assess a domain from a workstation
+  and the way this module's own tests exercise the full decode path with no domain
+  present.
+
+On event volume, which is the real constraint.
+A busy domain controller produces
+4769 events at a rate that makes "collect everything and filter later" untenable -
+tens of millions per week is ordinary.
+Three things follow from that, and this
+function is built around them:
+
+1.
+All filtering that CAN be pushed to the event log service IS.
+Event ID and time
+   window go into the FilterHashtable, where they are evaluated by the log service on
+   the remote controller before anything crosses the network.
+Filtering the same
+   events with Where-Object after collection transfers every record and is slower by
+   orders of magnitude.
+
+2.
+MaxEvents is applied per source, not per collection, and applies to the newest
+   events.
+A representative sample from each controller is nearly always a better
+   basis for an assessment than an exhaustive read of one.
+
+3.
+Controllers are read sequentially and the decode happens locally.
+For a large
+   estate, the intended pattern is to archive the security log to .evtx on each
+   controller - wevtutil exports in seconds because it never leaves the machine -
+   and then run this function against the collected files.
+The Troubleshooting notes
+   carry a worked example.
+
+Business value: this is the observational half of an encryption-type hardening
+assessment.
+Configuration alone cannot tell you what a service account has actually
+been presenting for the last thirty days, and that is the fact that decides whether
+hardening it is safe.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Get-KrbEvent</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>ComputerName</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string[]</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String[]</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>EventId</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">int[]</command:parameterValue>
+          <dev:type>
+            <maml:name>System.Int32[]</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>StartTime</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">datetime</command:parameterValue>
+          <dev:type>
+            <maml:name>System.DateTime</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>EndTime</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">datetime</command:parameterValue>
+          <dev:type>
+            <maml:name>System.DateTime</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>MaxEvents</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">int</command:parameterValue>
+          <dev:type>
+            <maml:name>System.Int32</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>Credential</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">pscredential</command:parameterValue>
+          <dev:type>
+            <maml:name>System.Management.Automation.PSCredential</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>IncludeFailureOnly</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+      </command:syntaxItem>
+      <command:syntaxItem>
+        <maml:name>Get-KrbEvent</maml:name>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="FullName">
+          <maml:name>Path</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string[]</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String[]</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>EventId</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">int[]</command:parameterValue>
+          <dev:type>
+            <maml:name>System.Int32[]</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>StartTime</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">datetime</command:parameterValue>
+          <dev:type>
+            <maml:name>System.DateTime</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>EndTime</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">datetime</command:parameterValue>
+          <dev:type>
+            <maml:name>System.DateTime</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>MaxEvents</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">int</command:parameterValue>
+          <dev:type>
+            <maml:name>System.Int32</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>IncludeFailureOnly</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>ComputerName</maml:name>
+        <maml:description>
+          <maml:para>[System.String[]] (Optional, No Pipeline Support)</maml:para>
+          <maml:para>Domain controllers to read the security log from.
+When omitted, every controller in
+the current domain is discovered and read.
+Ignored when -Path is used.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String[]</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String[]</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>Credential</maml:name>
+        <maml:description>
+          <maml:para>[System.Management.Automation.PSCredential] (Optional, No Pipeline Support)</maml:para>
+          <maml:para>Credentials for reading remote security logs.
+Requires membership of Event Log
+Readers or equivalent on each controller.
+Ignored when -Path is used.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.Management.Automation.PSCredential</command:parameterValue>
+        <dev:type>
+          <maml:name>System.Management.Automation.PSCredential</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>EndTime</maml:name>
+        <maml:description>
+          <maml:para>[System.DateTime] (Optional, No Pipeline Support)</maml:para>
+          <maml:para>Latest event to collect.
+Defaults to the present.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.DateTime</command:parameterValue>
+        <dev:type>
+          <maml:name>System.DateTime</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>EventId</maml:name>
+        <maml:description>
+          <maml:para>[System.Int32[]] (Optional, No Pipeline Support)</maml:para>
+          <maml:para>Which audit events to collect.
+Defaults to 4768, 4769 and 4771.</maml:para>
+          <maml:para>Narrowing this is the cheapest available optimisation.
+4769 alone answers "what have
+services been presenting"; 4768 alone answers "what do clients advertise"; 4771 alone
+answers "what is already failing".</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.Int32[]</command:parameterValue>
+        <dev:type>
+          <maml:name>System.Int32[]</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>IncludeFailureOnly</maml:name>
+        <maml:description>
+          <maml:para>[System.Management.Automation.SwitchParameter] (Optional, No Pipeline Support)</maml:para>
+          <maml:para>Return only events that represent a failure - every 4771, plus any 4768 or 4769
+carrying a non-zero result code.</maml:para>
+          <maml:para>The intended use is after a hardening change: filtered to failures and grouped by
+StatusName, a collection shows immediately whether KDC_ERR_ETYPE_NOTSUPP has appeared
+where it was not before.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>MaxEvents</maml:name>
+        <maml:description>
+          <maml:para>[System.Int32] (Optional, No Pipeline Support)</maml:para>
+          <maml:para>Maximum events to read from each source, newest first.
+Defaults to 50000.</maml:para>
+          <maml:para>Set this to 0 for no limit only when reading an archived file.
+Applying no limit to a
+live controller's security log is a request to transfer the entire log.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>System.Int32</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByPropertyName)" position="Named" aliases="FullName">
+        <maml:name>Path</maml:name>
+        <maml:description>
+          <maml:para>[System.String[]] (Mandatory in the Path set, Pipeline: ByPropertyName)</maml:para>
+          <maml:para>Archived .evtx files to read instead of a live log.
+Accepts wildcards and pipes
+directly from Get-ChildItem.
+This is the offline assessment path and the one the unit
+tests use.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String[]</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String[]</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>StartTime</maml:name>
+        <maml:description>
+          <maml:para>[System.DateTime] (Optional, No Pipeline Support)</maml:para>
+          <maml:para>Earliest event to collect.
+Defaults to 30 days ago, which is chosen to be longer than
+the 30-day default computer account password cycle so that at least one full
+authentication cycle for every domain-joined machine falls inside the window.</maml:para>
+          <maml:para>Assessments run over a window shorter than a month routinely miss the monthly batch
+job that is the thing hardening will break.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.DateTime</command:parameterValue>
+        <dev:type>
+          <maml:name>System.DateTime</maml:name>
+        </dev:type>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>System.String[]</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>One or more paths to archived `.evtx` files, bound to **-Path** by property name. Because the
+binding is by property name, `Get-ChildItem *.evtx | Get-KrbEvent` pipes directly — the
+`FullName` property of each `FileInfo` satisfies the parameter without a calculated property.</maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>KrbEtypeInsight.Event</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>One object per decoded 4768, 4769 or 4771 record, normalised across the version 0, 1 and 2
+audit schemas so a consumer never tests the schema version itself. Carries the identity of the
+request (`ClientAccount`, `ClientRealm`, `ServiceName`, `IsTgtRequest`), the encryption types
+actually negotiated (`TicketEtype`, `SessionKeyEtype`, `PreAuthEtype`), the configuration the
+KDC saw (`AccountSupportedEtypes`, `ServiceSupportedEtypes`, `AccountAvailableKeys`), the
+client's advertised capability where the schema records it (`ClientAdvertizedNames`,
+`ClientAdvertizedSupportsAes`, `ClientAdvertizedLegacyOnly`), and the originating `IpAddress`.
+
+`HasEtypeDetail` is the property to test before drawing a conclusion: version 0 and version 1
+records do not carry the client's advertised list, so an event may be a valid observation of a
+ticket while saying nothing about what the client could have used instead.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>Author: Jeffrey Stuhr
+Blog: https://www.techbyjeff.net
+LinkedIn: https://www.linkedin.com/in/jeffrey-stuhr-034214aa/
+
+Requires the Kerberos Authentication Service and Kerberos Service Ticket Operations
+audit subcategories to be enabled on the controllers.
+Without them the collection
+returns nothing and the assessment silently describes an empty domain - so this
+function warns rather than returning quietly when a source yields no events.
+
+Permissions: membership of Event Log Readers on each controller is sufficient for THIS
+function, and Domain Admin is not required.
+It is NOT sufficient for the module as a
+whole - Get-KrbDomainEtypeContext reads each controller's registry over PowerShell
+remoting and needs local administrator there.
+See the rights table in the README.
+
+Rights are not the only gate.
+Get-WinEvent -ComputerName uses the legacy Event Log RPC
+protocol, and the Remote Event Log Management firewall rules that permit it are off by
+default on a fresh Windows install.
+A controller with perfect rights still returns
+"The RPC server is unavailable" until they are enabled.
+
+TROUBLESHOOTING:
+- No events returned: .\Troubleshooting\Common\No-Events-Collected.md
+- Event volume and archiving: .\Troubleshooting\Performance\Event-Volume.md
+- Remote access denied: .\Troubleshooting\Security\Event-Log-Permissions.md</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>--------- Example 1: Collects the most recent 5000 Kerberos events from every controller in the domain ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Get-KrbEvent -MaxEvents 5000
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Output: KrbEtypeInsight.Event objects with all encryption types decoded.</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Use case: A first look at what a domain is actually issuing.</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Duration: Roughly 30 seconds per controller at this volume.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 2: Finds every service that has been issued at least one RC4 service ticket in 45 days ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Get-KrbEvent -EventId 4769 -StartTime (Get-Date).AddDays(-45) |
+    Group-Object ServiceName |
+    Where-Object { $_.Group.TicketEtype -contains 23 } |
+    Sort-Object Count -Descending
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Output: Service names ordered by request volume.</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Use case: Building the work list for an RC4 removal project.</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Duration: 2 to 10 minutes depending on domain size.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 3: Processes archived security logs collected from every controller ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Get-ChildItem \\fileserver\krbaudit\*.evtx | Get-KrbEvent -MaxEvents 0
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Output: The full decoded event set with no domain connectivity required.</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Use case: Assessing a domain from an administrative workstation, or re-running an assessment against a preserved snapshot after the estate has changed.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 4: Post-change verification over the four hours since a hardening rollout ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Get-KrbEvent -IncludeFailureOnly -StartTime (Get-Date).AddHours(-4) |
+    Group-Object StatusName | Sort-Object Count -Descending
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Output: Failure counts by KDC result code.</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Use case: Deciding within a maintenance window whether to proceed or roll back. KDC_ERR_ETYPE_NOTSUPP appearing here is the change breaking something.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version</maml:linkText>
+        <maml:uri>https://learn.microsoft.com/en-us/windows/security/threat-protection/auditing/event-4769</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>4768 - A Kerberos authentication ticket (TGT) was requested</maml:linkText>
+        <maml:uri>https://learn.microsoft.com/en-us/windows/security/threat-protection/auditing/event-4768</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>4769 - A Kerberos service ticket was requested</maml:linkText>
+        <maml:uri>https://learn.microsoft.com/en-us/windows/security/threat-protection/auditing/event-4769</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>4771 - Kerberos pre-authentication failed</maml:linkText>
+        <maml:uri>https://learn.microsoft.com/en-us/windows/security/threat-protection/auditing/event-4771</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>KB5021131 - Managing the Kerberos protocol changes for CVE-2022-37966</maml:linkText>
+        <maml:uri>https://support.microsoft.com/help/5021131</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Get-KrbEtypeRisk</maml:linkText>
+        <maml:uri>https://github.com/fadwen/KrbEtypeInsight/blob/main/docs/KrbEtypeInsight/Get-KrbEtypeRisk.md</maml:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command>
+    <command:details>
+      <command:name>Get-KrbPrincipalEtype</command:name>
+      <maml:description>
+        <maml:para>Reads the configured Kerberos encryption type posture of Active Directory principals</maml:para>
+      </maml:description>
+      <command:verb>Get</command:verb>
+      <command:noun>KrbPrincipalEtype</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>Returns, for each account, everything in the directory that determines which
+encryption types the KDC will use for it - decoded, and with the interactions between
+attributes made explicit.
+
+Four attributes decide the answer, and reading any one of them alone gives a wrong
+result:
+
+- msDS-SupportedEncryptionTypes is the primary control.
+Unset and zero both mean
+  "use the domain default", which is not the same as "supports nothing" and not the
+  same as "supports RC4 only".
+
+- userAccountControl carries USE_DES_KEY_ONLY, which overrides the encryption-type
+  attribute entirely, and the delegation bits, which determine how far a failure
+  propagates.
+
+- pwdLastSet decides which key material actually exists.
+Kerberos keys are derived
+  when the password is set, so an account whose password has not changed since the
+  domain supported AES has no AES key regardless of what its attributes claim.
+  Setting such an account to AES-only does not harden it, it breaks it - the KDC has
+  nothing to encrypt with and returns KDC_ERR_NULL_KEY.
+
+- servicePrincipalName decides whether the account is a service at all, and therefore
+  whether it appears in 4769 events as a target rather than only as a requester.
+
+Business value: this is the configuration half of the assessment.
+Combined with the
+observational half from Get-KrbEvent, it produces the statement that matters - not
+"this account is configured for RC4" but "this account is configured for RC4, has
+never presented anything else, holds no AES key, and twelve clients depend on it".</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Get-KrbPrincipalEtype</maml:name>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>All</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>ServiceAccountOnly</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>IncludeDisabled</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>DomainDefaultEncryptionTypes</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">int</command:parameterValue>
+          <dev:type>
+            <maml:name>System.Int32</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>Server</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>Credential</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">pscredential</command:parameterValue>
+          <dev:type>
+            <maml:name>System.Management.Automation.PSCredential</maml:name>
+          </dev:type>
+        </command:parameter>
+      </command:syntaxItem>
+      <command:syntaxItem>
+        <maml:name>Get-KrbPrincipalEtype</maml:name>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="SamAccountName, DistinguishedName">
+          <maml:name>Identity</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string[]</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String[]</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>DomainDefaultEncryptionTypes</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">int</command:parameterValue>
+          <dev:type>
+            <maml:name>System.Int32</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>Server</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>Credential</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">pscredential</command:parameterValue>
+          <dev:type>
+            <maml:name>System.Management.Automation.PSCredential</maml:name>
+          </dev:type>
+        </command:parameter>
+      </command:syntaxItem>
+      <command:syntaxItem>
+        <maml:name>Get-KrbPrincipalEtype</maml:name>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="ServiceName, Spn">
+          <maml:name>ServicePrincipalName</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string[]</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String[]</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>DomainDefaultEncryptionTypes</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">int</command:parameterValue>
+          <dev:type>
+            <maml:name>System.Int32</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>Server</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>Credential</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">pscredential</command:parameterValue>
+          <dev:type>
+            <maml:name>System.Management.Automation.PSCredential</maml:name>
+          </dev:type>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>All</maml:name>
+        <maml:description>
+          <maml:para>[System.Management.Automation.SwitchParameter] (Mandatory in the All set, No Pipeline Support)</maml:para>
+          <maml:para>Enumerate every user and computer account in the domain.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>Credential</maml:name>
+        <maml:description>
+          <maml:para>[System.Management.Automation.PSCredential] (Optional, No Pipeline Support)</maml:para>
+          <maml:para>Credentials for the directory query.
+Read access to the listed attributes is
+sufficient; no write permission is required or requested.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.Management.Automation.PSCredential</command:parameterValue>
+        <dev:type>
+          <maml:name>System.Management.Automation.PSCredential</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>DomainDefaultEncryptionTypes</maml:name>
+        <maml:description>
+          <maml:para>[System.Int32] (Optional, No Pipeline Support)</maml:para>
+          <maml:para>The bitmask applied when msDS-SupportedEncryptionTypes is unset or zero.
+Defaults to
+the Windows default of 0x27.
+Pass the real value from Get-KrbDomainEtypeContext when
+the domain controllers have DefaultDomainSupportedEncTypes configured, otherwise
+every account inheriting the default is described against the wrong baseline.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>System.Int32</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue, ByPropertyName)" position="Named" aliases="SamAccountName, DistinguishedName">
+        <maml:name>Identity</maml:name>
+        <maml:description>
+          <maml:para>[System.String[]] (Mandatory in the Identity set, Pipeline: ByValue and ByPropertyName)</maml:para>
+          <maml:para>Accounts to read, by sAMAccountName, distinguished name, SID or GUID.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String[]</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String[]</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>IncludeDisabled</maml:name>
+        <maml:description>
+          <maml:para>[System.Management.Automation.SwitchParameter] (Optional, No Pipeline Support)</maml:para>
+          <maml:para>Include disabled accounts in an -All enumeration.
+Excluded by default: a disabled
+account cannot authenticate, so counting it as a risk inflates the report without
+adding a single action.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>Server</maml:name>
+        <maml:description>
+          <maml:para>[System.String] (Optional, No Pipeline Support)</maml:para>
+          <maml:para>Domain controller to query.
+Defaults to whichever the ActiveDirectory module selects.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>ServiceAccountOnly</maml:name>
+        <maml:description>
+          <maml:para>[System.Management.Automation.SwitchParameter] (Optional, No Pipeline Support)</maml:para>
+          <maml:para>Restrict an -All enumeration to accounts that have at least one service principal
+name.
+These are the accounts whose encryption types appear in service ticket requests
+and therefore the ones a hardening change can break for other people.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue, ByPropertyName)" position="Named" aliases="ServiceName, Spn">
+        <maml:name>ServicePrincipalName</maml:name>
+        <maml:description>
+          <maml:para>[System.String[]] (Mandatory in the ServicePrincipalName set, Pipeline: ByValue and ByPropertyName)</maml:para>
+          <maml:para>Service principal names to resolve back to their owning accounts.
+This is how a
+service name taken from a 4769 event becomes an account whose configuration can be
+read.</maml:para>
+          <maml:para>For bulk work, prefer -All and index the results locally.
+Resolving several thousand
+SPNs one directory query at a time is the slowest thing this module can be asked to
+do; one enumeration and an in-memory index is what Get-KrbEtypeRisk does instead.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String[]</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String[]</maml:name>
+        </dev:type>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>System.String[]</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>One or more account identities or service principal names, accepted from the pipeline by value.
+An identity may be a `sAMAccountName`, a distinguished name, a GUID or a SID; an SPN is
+recognised by its `service/host` shape and resolved to the account that holds it.</maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>KrbEtypeInsight.Principal</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>One object per resolved account, describing what the directory says it supports.
+`ConfiguredEncryptionTypes` is the raw `msDS-SupportedEncryptionTypes` value and
+`EffectiveEncryptionTypes` is what the account actually resolves to once an unset attribute has
+been read against the domain default and any `userAccountControl` override has been applied —
+the two differ far more often than the attribute alone suggests, which is why both are
+returned. `AvailableKeys` reports the key material that exists rather than the configuration
+that claims it, so an account configured for AES but holding no AES key is visible before a
+change makes it a `KDC_ERR_NULL_KEY`.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>Author: Jeffrey Stuhr
+Blog: https://www.techbyjeff.net
+LinkedIn: https://www.linkedin.com/in/jeffrey-stuhr-034214aa/
+
+Requires the ActiveDirectory module.
+Read-only throughout - this function never
+modifies a directory object.
+
+Group managed service accounts are returned like any other account.
+Their passwords
+are rotated by the KDC every 30 days by default, so they are among the few account
+types whose key material can be assumed current.
+
+TROUBLESHOOTING:
+- SPN resolution failures: .\Troubleshooting\Common\SPN-Resolution.md
+- Accounts with no AES key: .\Troubleshooting\Common\Missing-AES-Keys.md
+- Query performance: .\Troubleshooting\Performance\Directory-Queries.md</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>--------- Example 1: Reads one service account's complete encryption type posture ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Get-KrbPrincipalEtype -Identity 'svc-legacyapp'
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Output: Decoded supported types, account control flags, password age, and SPNs.</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Use case: Investigating a single account before changing it.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 2: Finds every service account that can only use RC4 ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Get-KrbPrincipalEtype -All -ServiceAccountOnly |
+    Where-Object { $_.EncryptionTypes.SupportsRc4 -and -not $_.EncryptionTypes.SupportsAes }
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Output: The accounts an RC4 removal will definitely affect.</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Use case: Scoping a hardening project.</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Duration: Under a minute in a domain of a few thousand accounts.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 3: Finds accounts pinned to single DES by userAccountControl ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Get-KrbPrincipalEtype -All | Where-Object { $_.AccountControl.UseDesKeyOnly }
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Output: Accounts whose encryption-type attribute the KDC is ignoring.</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Use case: Catching the accounts an attribute-only assessment reports as healthy.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 4: Resolves the services actually observed in the log back to their accounts ---------</maml:title>
+        <maml:introduction>
+          <maml:para>```powershell
+Get-KrbEvent -EventId 4769 -MaxEvents 20000 |
+    Select-Object -ExpandProperty ServiceName -Unique |
+    Get-KrbPrincipalEtype -ServicePrincipalName -ErrorAction SilentlyContinue
+```</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Output: Configuration for exactly the accounts that are in use.</maml:para>
+          <maml:para>&#x80;</maml:para>
+          <maml:para>Use case: Assessing what is live rather than what merely exists in the directory.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version</maml:linkText>
+        <maml:uri>https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-kile/6cfc7b50-11ed-4b4d-846d-6f08f0812919</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>MS-KILE 2.2.7 - Supported Encryption Types Bit Flags</maml:linkText>
+        <maml:uri>https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-kile/6cfc7b50-11ed-4b4d-846d-6f08f0812919</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Group Managed Service Accounts overview</maml:linkText>
+        <maml:uri>https://learn.microsoft.com/en-us/windows-server/security/group-managed-service-accounts/group-managed-service-accounts-overview</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Get-KrbDomainEtypeContext</maml:linkText>
+        <maml:uri>https://github.com/fadwen/KrbEtypeInsight/blob/main/docs/KrbEtypeInsight/Get-KrbDomainEtypeContext.md</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Get-KrbEtypeRisk</maml:linkText>
+        <maml:uri>https://github.com/fadwen/KrbEtypeInsight/blob/main/docs/KrbEtypeInsight/Get-KrbEtypeRisk.md</maml:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+</helpItems>

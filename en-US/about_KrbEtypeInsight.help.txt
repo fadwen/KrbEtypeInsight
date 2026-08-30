@@ -1,0 +1,162 @@
+TOPIC
+    about_KrbEtypeInsight
+
+SHORT DESCRIPTION
+    Predicts which accounts, services and clients a Kerberos encryption type
+    hardening change will break, before the change is made.
+
+LONG DESCRIPTION
+    Setting msDS-SupportedEncryptionTypes from RC4 to AES is a one-line change.
+    The hard part is the question that change does not answer: will it break
+    anything, and if so, whose?
+
+    Answering it means putting three independent sources next to each other. No
+    single one of them is sufficient, and this module exists because correlating
+    them by hand does not scale past a few dozen accounts.
+
+        Events 4768, 4769, 4771     what the KDC has actually been issuing
+        Directory attributes        what each principal is configured to support
+        Domain baseline             what the domain permits by default
+
+    The output is not "this account is configured for RC4". It is the list of
+    machines that will stop authenticating, named.
+
+TWO NUMBERING SYSTEMS
+    This is the single most common source of wrong answers, and the reason
+    ConvertFrom-KrbEtype has three parameter sets rather than one.
+
+    Kerberos encryption types are written as small integers in two unrelated
+    systems, and a value is meaningless without knowing which system it came
+    from:
+
+        Cipher                RFC 3961 etype    MS-KILE flag
+        DES-CBC-CRC                        1             0x1
+        DES-CBC-MD5                        3             0x2
+        RC4-HMAC                          23             0x4
+        AES128-CTS-HMAC-SHA1-96           17             0x8
+        AES256-CTS-HMAC-SHA1-96           18            0x10
+
+    RC4 is 23 in one system and 0x4 in the other. AES256 is 18 and 0x10. A
+    script that tests a ticket's TicketEncryptionType against 4 is testing for
+    DES-CBC-CRC and will report every RC4 ticket in the estate as clean.
+
+    The mapping is a lookup table, not arithmetic. This module models the two as
+    separate types and never converts between them by calculation:
+
+        -TicketEtype                an RFC 3961 number, from an event's
+                                    TicketEncryptionType, SessionKeyEncryptionType
+                                    or PreAuthEncryptionType field
+        -SupportedEncryptionTypes   an MS-KILE bitmask, from
+                                    msDS-SupportedEncryptionTypes, from the
+                                    DefaultDomainSupportedEncTypes registry value,
+                                    or from a trustedDomain object
+        -AdvertizedEtype            the name list a client sent, from the
+                                    ClientAdvertizedEncryptionTypes field of a
+                                    version 2 event
+
+CONFIGURATION PRECEDENCE
+    An account's effective encryption types are not simply the value of
+    msDS-SupportedEncryptionTypes. Three things override it, in this order:
+
+    1.  userAccountControl. USE_DES_KEY_ONLY overrides the attribute entirely.
+        An account can be configured for AES and still be DES-only in practice.
+
+    2.  An unset attribute. Where msDS-SupportedEncryptionTypes has never been
+        written, the account inherits the domain controller's
+        DefaultDomainSupportedEncTypes registry value - not a fixed constant, and
+        not necessarily the same on every controller.
+
+    3.  Key material. Configuration states what an account may use; the key
+        material states what it can use. An account configured for AES that
+        holds no AES key fails with KDC_ERR_NULL_KEY. This is why
+        Get-KrbPrincipalEtype returns AvailableKeys separately from
+        ConfiguredEncryptionTypes, and why the two are worth comparing.
+
+    Get-KrbPrincipalEtype returns both ConfiguredEncryptionTypes and
+    EffectiveEncryptionTypes for this reason. They differ more often than the
+    attribute alone suggests.
+
+CONTROLLERS ARE PERMITTED TO DISAGREE
+    DefaultDomainSupportedEncTypes is a per-controller registry value. Where
+    controllers disagree, the effective default for an account with an unset
+    attribute depends on which controller answers the request - so the domain
+    cannot be assessed as though it had one baseline.
+
+    Get-KrbDomainEtypeContext returns one entry per controller for this reason,
+    and records whether each value was read or assumed. A baseline collected
+    from one controller and applied to the domain is a guess.
+
+REQUIRED RIGHTS
+    The module's functions do not need the same rights, and the difference
+    matters when delegating an assessment:
+
+        Get-KrbEvent                Event Log Readers on each controller.
+                                    Domain Admin is not required.
+        Get-KrbPrincipalEtype       Ordinary authenticated read on the directory.
+        Get-KrbDomainEtypeContext   Local administrator on each controller - it
+                                    reads the registry over PowerShell remoting.
+
+    Rights are not the only gate. Get-WinEvent -ComputerName uses the legacy
+    Event Log RPC protocol, and the Remote Event Log Management firewall rules
+    that permit it are off by default. A controller with correct rights still
+    returns "The RPC server is unavailable" until they are enabled.
+
+    Everything in this module is read-only. It predicts the effect of a change;
+    it never makes one.
+
+WHAT "WILL BREAK" MEANS
+    WillBreakOnHardening means "predicted to break given observed use", not
+    "cannot work". An account configured without AES that produced no traffic in
+    the collection window is reported as KRB012 rather than as breaking.
+
+    Absence of traffic is not evidence of safety, and a report should not be read
+    as though it were. Use a collection window of at least 30 days: shorter, and
+    the monthly batch job - reliably the thing hardening breaks - falls outside
+    the window entirely.
+
+AUDIT PREREQUISITES
+    Collection depends on the Kerberos Authentication Service and Kerberos
+    Service Ticket Operations audit subcategories being enabled on the
+    controllers. Without them the collection returns nothing and an assessment
+    would silently describe an empty domain, so Get-KrbEvent warns rather than
+    returning quietly when a source yields no events.
+
+    Event schema version matters as well. Version 0 and version 1 records do not
+    carry the client's advertised encryption type list, so they establish what a
+    client received but not what it could have used instead. Test HasEtypeDetail
+    before drawing a conclusion from an event.
+
+EXAMPLES
+    Scope an RC4 removal project:
+
+        $context = Get-KrbDomainEtypeContext
+        $principals = Get-KrbPrincipalEtype -All -DomainDefaultEncryptionTypes `
+            $context.DomainDefaultEncryptionTypes
+
+        Get-KrbEvent -StartTime (Get-Date).AddDays(-45) |
+            Get-KrbEtypeRisk -Principal $principals -DomainContext $context |
+            Where-Object WillBreakOnHardening |
+            Export-KrbEtypeReport -Path .\blockers.html -DomainContext $context
+
+    Assess from a workstation with no domain connectivity:
+
+        Get-ChildItem \\archive\krbaudit\*.evtx |
+            Get-KrbEvent -MaxEvents 0 |
+            Get-KrbEtypeRisk
+
+SEE ALSO
+    ConvertFrom-KrbEtype
+    Get-KrbEvent
+    Get-KrbPrincipalEtype
+    Get-KrbDomainEtypeContext
+    Get-KrbEtypeRisk
+    Export-KrbEtypeReport
+
+    KB5021131 - Managing the Kerberos protocol changes for CVE-2022-37966
+    https://support.microsoft.com/help/5021131
+
+    MS-KILE 2.2.7 - Supported Encryption Types Bit Flags
+    https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-kile/6cfc7b50-11ed-4b4d-846d-6f08f0812919
+
+    RFC 3961 - Encryption and Checksum Specifications for Kerberos 5
+    https://www.rfc-editor.org/rfc/rfc3961

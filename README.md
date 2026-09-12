@@ -616,7 +616,7 @@ Jeffrey Stuhr
 
 ## License
 
-Copyright (C) 2026 EntraVantage LLC.
+Copyright (C) 2026 Jeffrey Stuhr.
 
 Released under the **GNU General Public License v3.0** — see [LICENSE](LICENSE) for the full
 text. In short: you may use, study, modify and redistribute it, and any distributed derivative

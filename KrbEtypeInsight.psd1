@@ -3,8 +3,8 @@
     ModuleVersion     = '1.0.0'
     GUID              = 'ba1a8c68-0d77-4a64-b01b-e68d1bbdc810'
     Author            = 'Jeffrey Stuhr'
-    CompanyName       = 'EntraVantage LLC'
-    Copyright         = '(c) 2026 EntraVantage LLC. Licensed under the GNU General Public License v3.0.'
+    CompanyName       = 'Jeffrey Stuhr'
+    Copyright         = '(c) 2026 Jeffrey Stuhr. Licensed under the GNU General Public License v3.0.'
 
     Description       = @'
 Predicts which accounts, services and clients a Kerberos encryption type hardening change

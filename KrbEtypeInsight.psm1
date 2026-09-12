@@ -3,7 +3,7 @@
 <#
     KrbEtypeInsight - Kerberos encryption type breakage prediction for Active Directory.
 
-    Copyright (C) 2026 EntraVantage LLC.
+    Copyright (C) 2026 Jeffrey Stuhr.
 
     This program is free software: you can redistribute it and/or modify it under the terms
     of the GNU General Public License as published by the Free Software Foundation, either

@@ -37,7 +37,7 @@ Collect essential information for module development:
 ## Module Structure Generation
 
 > **Worked example**:
-> [Documentation/Examples/Module-Structure-Example](../../Documentation/Examples/Module-Structure-Example/)
+> [powershell-standards/Examples/Module-Structure-Example](../../powershell-standards/Examples/Module-Structure-Example/)
 > is a small working module implementing everything in this section - the folder layout, the load
 > order in `ModuleExample.psm1`, an explicit `FunctionsToExport`, a class used as a named output
 > type, and a private helper that is never exported. Read it before generating a new module; prefer
@@ -94,7 +94,7 @@ comment block.
 ### Module Manifest Creation
 
 Generate comprehensive module manifest (ModuleName.psd1). For a complete, valid manifest see
-[ModuleExample.psd1](../../Documentation/Examples/Module-Structure-Example/ModuleExample.psd1) -
+[ModuleExample.psd1](../../powershell-standards/Examples/Module-Structure-Example/ModuleExample.psd1) -
 note that `FunctionsToExport` names each public function explicitly, which is what keeps private
 helpers internal:
 
@@ -150,7 +150,7 @@ helpers internal:
 
 Create optimized root module file (ModuleName.psm1). Load order matters: classes first, then private
 functions, then public ones - see
-[ModuleExample.psm1](../../Documentation/Examples/Module-Structure-Example/ModuleExample.psm1) for a
+[ModuleExample.psm1](../../powershell-standards/Examples/Module-Structure-Example/ModuleExample.psm1) for a
 working loader.
 
 ```powershell
@@ -381,11 +381,11 @@ function Get-ModuleCredential {
 
 ### Pester Test Structure
 
-Generate comprehensive test suites targeting **Pester 6.1+**:
+Generate comprehensive test suites targeting **Pester 6.2+**:
 
 ```powershell
 # Tests/Unit/Public/Verb-Noun.Tests.ps1
-#Requires -Modules @{ ModuleName = 'Pester'; ModuleVersion = '6.1.0' }
+#Requires -Modules @{ ModuleName = 'Pester'; ModuleVersion = '6.2.0' }
 
 BeforeAll {
     # Pester 6 discovers and runs one file at a time - each file must be self-contained
@@ -411,7 +411,6 @@ Describe "Verb-Noun" -Tag "Unit", "Public" {
     }
 
     Context "Functionality" {
-        # Only one BeforeEach per block - Pester 6 throws on duplicates
         BeforeEach {
             Mock External-Dependency { "MockedResult" }
         }
@@ -437,8 +436,8 @@ Describe "Verb-Noun" -Tag "Unit", "Public" {
 ```
 
 Key Pester 6 points: `Should-*` assertions replace `Should -Be` for new tests,
-`Assert-MockCalled` was removed in favour of `Should-Invoke`, duplicate setup blocks throw, and
-every file must import its own dependencies. See
+`Assert-MockCalled` was removed in favour of `Should-Invoke`, and every file must import its own
+dependencies. See
 [Pester instructions](./pester.instructions.md) and the
 [migration guide](./pester-supporting-docs/v6-migration.md).
 

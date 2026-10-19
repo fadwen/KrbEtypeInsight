@@ -1,5 +1,8 @@
 # KrbEtypeInsight
 
+[![PowerShell Gallery](https://img.shields.io/powershellgallery/v/KrbEtypeInsight?style=flat-square&logo=powershell&label=Gallery)](https://www.powershellgallery.com/packages/KrbEtypeInsight)
+[![Gallery downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ffadwen%2FKrbEtypeInsight%2Fbadges%2Fdownloads.json&style=flat-square)](https://www.powershellgallery.com/packages/KrbEtypeInsight)
+
 Predicts which accounts, services and clients a Kerberos encryption type hardening change will
 break — before the change is made.
 

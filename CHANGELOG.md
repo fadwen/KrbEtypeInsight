@@ -8,6 +8,10 @@ All notable changes to this module are recorded here. Format follows
 
 ### Added
 
+- A Gallery downloads badge in the README that sums the per-version download counts, because
+  the Gallery's own total is broken (PowerShell/PowerShellGallery#347 and #350: it reads 0 for
+  this module). `.github/workflows/gallery-downloads.yml` calls the reusable workflow in
+  fadwen/IntuneScriptLab daily and publishes the figure to a `badges` branch when it changes.
 - `Tests/Stubs` — a generated stand-in for the six RSAT cmdlets the unit suites mock, so
   those suites run on a host without RSAT. The suites already mocked every directory call
   and never reached a domain; what stopped them was that Pester cannot attach a mock to a

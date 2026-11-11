@@ -607,6 +607,10 @@ the trust, which turns `KRB014` from a claim about configuration into an observa
 - [RFC 3961 — Encryption and Checksum Specifications for Kerberos 5](https://www.rfc-editor.org/rfc/rfc3961)
 - [RFC 4120 — The Kerberos Network Authentication Service (V5)](https://www.rfc-editor.org/rfc/rfc4120)
 
+## Blog post
+
+- [Knowing What Breaks Before You Turn Off RC4](https://www.techbyjeff.net/knowing-what-breaks-before-you-turn-off-rc4/)
+
 ## Source
 
 [github.com/fadwen/KrbEtypeInsight](https://github.com/fadwen/KrbEtypeInsight)

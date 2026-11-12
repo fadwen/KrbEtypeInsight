@@ -116,7 +116,10 @@ effect.
 
 `git tag v<ModuleVersion> && git push origin v<ModuleVersion>` triggers
 `.github/workflows/release.yml`, which re-runs the full quality gates, verifies the tag
-against `ModuleVersion`, stages, imports the staged tree, and publishes.
+against `ModuleVersion`, stages, imports the staged tree, and publishes. It then creates the
+tag's GitHub release from that version's `## [<version>]` CHANGELOG section. That section must
+exist and must not be empty, or the job fails; a dry run checks it too. A release that already
+exists for the tag is left as written.
 
 A version number is consumed permanently on first publish. Bump `ModuleVersion`, update
 `CHANGELOG.md`, and tag — the workflow blocks a tag that disagrees with the manifest, so the
